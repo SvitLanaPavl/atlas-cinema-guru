@@ -1,37 +1,51 @@
 'use client';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const DashboardSidebar = () => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect if the screen is mobile or not
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768); // Set to true if the screen width is smaller than 768px (md breakpoint)
+    };
+
+    handleResize(); // Check the initial width
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <div
-      className={`relative top-0 left-0 h-screen bg-teal transition-all ease-in duration-300 ${
-        isExpanded ? 'w-60' : 'w-20'
-      }`}
-      onMouseEnter={() => setIsExpanded(true)}
-      onMouseLeave={() => setIsExpanded(false)}
+      className={`relative bg-teal transition-all ease-in-out duration-300 ${
+        isExpanded ? 'md:w-60' : 'md:w-20'
+      } w-full h-20 md:h-screen lg:h-screen`}
+      // Only enable expand/collapse hover behavior for medium and large screens
+      onMouseEnter={() => !isMobile && setIsExpanded(true)}
+      onMouseLeave={() => !isMobile && setIsExpanded(false)}
     >
-      <div className={`flex py-10 flex-col transition-all ease-in duration-300 ${
-        isExpanded ? 'items-start px-5' : 'items-center'
-      }  py-4 space-y-6`}>
+      <div
+        className={`flex flex-row md:flex-col py-0 md:py-10 md:space-y-6 px-5 h-full`}
+      >
         {/* Home Link */}
-        <Link href="/" className="flex items-center space-x-3">
-            <img src="/assets/folder-solid.svg" alt="Home" className="h-6 w-6" />
-            {isExpanded && <span className="text-white">Home</span>}
+        <Link href="/" className="flex items-center w-full">
+          <img src="/assets/folder-solid.svg" alt="Home" className="h-6 w-6" />
+          {(isExpanded || isMobile) && <span className="ml-3 text-white">Home</span>}
         </Link>
 
         {/* Favorites Link */}
-        <Link href="/favorites" className="flex items-center space-x-2">
-            <img src="/assets/star-solid.svg" alt="Favorites" className="h-6 w-6" />
-            {isExpanded && <span className="text-white">Favorites</span>}
+        <Link href="/favorites" className="flex items-center w-full">
+          <img src="/assets/star-solid.svg" alt="Favorites" className="h-6 w-6" />
+          {(isExpanded || isMobile) && <span className="ml-3 text-white">Favorites</span>}
         </Link>
 
         {/* Watch Later Link */}
-        <Link href="/watch-later" className="flex items-center space-x-2">
-            <img src="/assets/clock-solid.svg" alt="Watch Later" className="h-6 w-6" />
-            {isExpanded && <span className="text-white">Watch Later</span>}
+        <Link href="/watch-later" className="flex items-center w-full">
+          <img src="/assets/clock-solid.svg" alt="Watch Later" className="h-6 w-6" />
+          {(isExpanded || isMobile) && <span className="ml-3 text-white">Watch Later</span>}
         </Link>
       </div>
     </div>

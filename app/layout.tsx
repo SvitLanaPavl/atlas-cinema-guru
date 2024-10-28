@@ -11,9 +11,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <SessionProvider>
           <Header />
-          <div className='flex bg-blue'>
+          <div className="flex flex-col lg:flex-row bg-blue">
             <DashboardSidebar />
-            {children} {/* This wraps all pages with SessionProvider */}
+            <div className="flex-grow">
+              {children}
+            </div>
           </div>
         </SessionProvider>
       </body>
