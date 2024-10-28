@@ -7,7 +7,8 @@ export default {
         blue: '#00003c',
         blueLight: '#64648c',
         teal: '#1ed2af',
-        tealBright: '#3EEFC5'
+        tealBright: '#3EEFC5',
+        navy: '#000080',
       }
     }
   },

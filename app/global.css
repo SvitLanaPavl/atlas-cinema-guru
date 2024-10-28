@@ -1,3 +1,33 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom year input styling */
+.custom-year-input {
+  /* Allow the browser's default appearance */
+  appearance: textfield;
+  -moz-appearance: textfield;
+  -webkit-appearance: textfield;
+
+  /* Adjust padding for the input text */
+  padding-right: 1.5rem;
+}
+
+/* Custom arrow buttons */
+.custom-year-input::-webkit-inner-spin-button,
+.custom-year-input::-webkit-outer-spin-button {
+  /* Make the arrow buttons visible */
+  -webkit-appearance: none;
+  width: 1.2em;
+  height: 100%;
+  background-color: transparent;
+  color: #1ED2AF;
+  border: none;
+  outline: none;
+  margin-right: 10px; /* Add spacing between the edge and arrows */
+}
+
+.custom-year-input::-moz-inner-spin-button {
+  /* Custom color for the arrow buttons in Firefox */
+  color: #1ED2AF;
+}
