@@ -1,4 +1,5 @@
 'use client';
+import { useState, useEffect } from "react";
 
 interface Movie {
   id: string;
@@ -6,12 +7,58 @@ interface Movie {
   synopsis: string;
   released: number;
   genre: string;
+  favorited?: boolean;
 }
 
+interface MovieCardProps {
+  movie: Movie;
+  toggleFavorite?: (movieId: string, isFavorited: boolean) => void; // Pass the favorited status
+}
 
-const MovieCard = ({ movie }: { movie: Movie}) => {
+const MovieCard: React.FC<MovieCardProps> = ({ movie, toggleFavorite }) => {
+  const [isFavorited, setIsFavorited] = useState(movie.favorited || false); // Local state for favorited status
+  const [isLoading, setIsLoading] = useState(false); // Loading state to prevent multiple clicks
   const imageUrl = `/images/${movie.id}.webp`;
 
+  useEffect(() => {
+    // Sync the local state with the updated movie prop
+    setIsFavorited(movie.favorited || false);
+  }, [movie.favorited]);
+
+  const handleFavoriteToggle = async () => {
+    if (isLoading) return; // Prevent additional clicks while waiting for the API response
+
+    setIsLoading(true); // Set loading state to true while the request is being processed
+
+    try {
+      let response;
+
+      if (isFavorited) {
+        // Remove from favorites
+        response = await fetch(`/api/favorites/${movie.id}`, { method: 'DELETE' });
+        if (!response.ok) {
+          throw new Error('Failed to remove favorite');
+        }
+        setIsFavorited(false); // Update the UI after the movie is removed from the database
+      } else {
+        // Add to favorites
+        response = await fetch(`/api/favorites/${movie.id}`, { method: 'POST' });
+        if (!response.ok) {
+          throw new Error('Failed to add favorite');
+        }
+        setIsFavorited(true); // Update the UI after the movie is added to the database
+      }
+
+      // Call the parent toggleFavorite function (if provided) to update the parent state
+      if (toggleFavorite) {
+        toggleFavorite(movie.id, !isFavorited); // Pass the updated state to the parent
+      }
+    } catch (error) {
+      console.error('Error updating favorites:', error);
+    } finally {
+      setIsLoading(false); // Reset loading state
+    }
+  };
 
   return (
     <div className="relative group border-teal border-2 rounded-lg overflow-hidden h-[45vh]">
@@ -24,9 +71,10 @@ const MovieCard = ({ movie }: { movie: Movie}) => {
       {/* Favorite and Watch Later Icons */}
       <div className="absolute top-3 right-3 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out">
         <img
-          src="/assets/star.svg"
+          src={isFavorited ? '/assets/star-solid.svg' : '/assets/star.svg'}
           alt="Favorite"
-          className="h-6 w-6 cursor-pointer"
+          className={`h-6 w-6 cursor-pointer ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          onClick={handleFavoriteToggle}
         />
         <img
           src="/assets/clock.svg"
@@ -47,12 +95,12 @@ const MovieCard = ({ movie }: { movie: Movie}) => {
 
         {/* Movie Genre */}
         <div className="flex flex-wrap gap-2 mt-2">
-            <span
-              key={movie.genre}
-              className="bg-teal text-blue px-2 py-1 rounded-full text-xs"
-            >
-              {movie.genre}
-            </span>
+          <span
+            key={movie.genre}
+            className="bg-teal text-blue px-2 py-1 rounded-full text-xs"
+          >
+            {movie.genre}
+          </span>
         </div>
       </div>
     </div>

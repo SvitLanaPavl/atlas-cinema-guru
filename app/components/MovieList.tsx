@@ -7,18 +7,27 @@ interface Movie {
   synopsis: string;
   released: number;
   genre: string;
-  image: string;
+  favorited?: boolean;
 }
 
-const MovieList = ({ movies }: { movies: Movie[] }) => {
+interface MovieListProps {
+  movies: Movie[];
+  toggleFavorite?: (movieId: string) => void; // Optional
+}
+
+const MovieList: React.FC<MovieListProps> = ({ movies, toggleFavorite }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mx-5 md:mx-10">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 mx-5 md:mx-10">
       {movies.length > 0 ? (
         movies.map((movie) => (
-          <MovieCard key={movie.id} movie={movie} /> // Pass movie data to MovieCard
+          <MovieCard
+            key={movie.id}
+            movie={movie}
+            toggleFavorite={toggleFavorite}  // Pass down toggleFavorite function
+          />
         ))
       ) : (
-        <p className='text-teal text-lg font-semibold px-3 py-5'>No movies found.</p>
+        <p className='text-teal py-10 text-lg font-semibold ps-2'>No movies found.</p>
       )}
     </div>
   );

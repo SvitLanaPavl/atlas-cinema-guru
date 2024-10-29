@@ -108,45 +108,75 @@ export async function fetchFavorites(page: number, userEmail: string) {
 /**
  *  Add a title to a users favorites list.
  */
+/**
+ *  Add a title to a user's favorites list.
+ */
 export async function insertFavorite(title_id: string, userEmail: string) {
   try {
-    const data =
-      await sql<Question>`INSERT INTO favorites (title_id, user_id) VALUES (${title_id}, ${userEmail})`;
-    insertActivity(title_id, userEmail, "FAVORITED");
-    return data.rows;
+    // Ensure the query is correct and using the right SQL syntax
+    await db
+      .insertInto("favorites")
+      .values({ title_id, user_id: userEmail })
+      .execute();
+
+    // Optionally log or return a success message
+    await insertActivity(title_id, userEmail, "FAVORITED");
+    
+    return { message: "Favorite Added" };
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to add favorite.");
   }
 }
 
+
 /**
  * Remove a title from a users favorites list.
  */
 export async function deleteFavorite(title_id: string, userEmail: string) {
   try {
-    const data =
-      await sql<Question>`DELETE FROM favorites WHERE title_id = ${title_id} AND user_id = ${userEmail}`;
-    return data.rows;
+    // Attempt to delete the favorite and return affected rows if supported
+    const result = await db
+      .deleteFrom("favorites")
+      .where("title_id", "=", title_id)
+      .where("user_id", "=", userEmail)
+      .returning(["title_id"]) // This depends on your DB/library, use it if available
+      .execute();
+
+    if (result.length === 0) {
+      // No rows were affected, meaning the favorite didn't exist or wasn't deleted
+      throw new Error("Favorite not found or already removed");
+    }
+
+    return result;
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to delete favorite.");
   }
 }
 
+
+
+
 /**
  * Check if a title is in a users favorites list.
  */
-export async function favoriteExists(title_id: string, userEmail: string) {
+export async function favoriteExists(title_id: string, userEmail: string): Promise<boolean> {
   try {
-    const data =
-      await sql<Question>`SELECT * FROM favorites WHERE title_id = ${title_id} AND user_id = ${userEmail}`;
-    return data.rows.length > 0;
+    const data = await db
+      .selectFrom("favorites")
+      .select("title_id")
+      .where("title_id", "=", title_id)
+      .where("user_id", "=", userEmail)
+      .execute();
+
+    return data.length > 0;
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch favorite.");
   }
 }
+
 
 /**
  * Get a users watch later list.

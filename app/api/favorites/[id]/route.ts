@@ -8,7 +8,7 @@ import { auth } from "@/auth";
 export const POST = auth(
   //@ts-ignore
   async (req: NextRequest, { params }: { params: { id: string } }) => {
-    const { id } = params;
+    const { id } = await params; // Make sure params is awaited
 
     //@ts-ignore
     if (!req.auth) {
@@ -27,8 +27,16 @@ export const POST = auth(
       return NextResponse.json({ message: "Already favorited" });
     }
 
-    await insertFavorite(id, email);
-    return NextResponse.json({ message: "Favorite Added" });
+    try {
+      await insertFavorite(id, email);
+      return NextResponse.json({ message: "Favorite Added" });
+    } catch (error) {
+      console.error("Database Error:", error);
+      return NextResponse.json(
+        { error: "Failed to add favorite" },
+        { status: 500 }
+      );
+    }
   }
 );
 
@@ -38,13 +46,29 @@ export const POST = auth(
 export const DELETE = auth(
   //@ts-ignore
   async (req: NextRequest, { params }: { params: { id: string } }) => {
-    const { id } = params;
+    const { id } = await params; // Ensure params is awaited
+
+    //@ts-ignore
+    if (!req.auth) {
+      return NextResponse.json(
+        { error: "Unauthorized - Not logged in" },
+        { status: 401 }
+      );
+    }
 
     const {
       user: { email }, //@ts-ignore
     } = req.auth;
 
-    await deleteFavorite(id, email);
-    return NextResponse.json({ message: "Favorite removed" });
+    try {
+      await deleteFavorite(id, email);
+      return NextResponse.json({ message: "Favorite removed" });
+    } catch (error) {
+      console.error("Database Error:", error);
+      return NextResponse.json(
+        { error: "Failed to remove favorite" },
+        { status: 500 }
+      );
+    }
   }
 );
