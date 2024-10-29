@@ -217,15 +217,30 @@ export async function fetchWatchLaters(page: number, userEmail: string) {
  * Add a title to a users watch later list.
  */
 export async function insertWatchLater(title_id: string, userEmail: string) {
-  try {
-    const data =
-      await sql<Question>`INSERT INTO watchLater (title_id, user_id) VALUES (${title_id}, ${userEmail})`;
+  // try {
+  //   const data =
+  //     await sql<Question>`INSERT INTO watchLater (title_id, user_id) VALUES (${title_id}, ${userEmail})`;
 
-    insertActivity(title_id, userEmail, "WATCH_LATER");
-    return data.rows;
+  //   insertActivity(title_id, userEmail, "WATCH_LATER");
+  //   return data.rows;
+  // } catch (error) {
+  //   console.error("Database Error:", error);
+  //   throw new Error("Failed to add watchLater.");
+  // }
+  try {
+    // Ensure the query is correct and using the right SQL syntax
+    await db
+      .insertInto("watchlater")
+      .values({ title_id, user_id: userEmail })
+      .execute();
+
+    // Optionally log or return a success message
+    await insertActivity(title_id, userEmail, "WATCH_LATER");
+    
+    return { message: "WATCH LATER Added" };
   } catch (error) {
     console.error("Database Error:", error);
-    throw new Error("Failed to add watchLater.");
+    throw new Error("Failed to add watch later.");
   }
 }
 
@@ -233,13 +248,32 @@ export async function insertWatchLater(title_id: string, userEmail: string) {
  * Remove a title from a users watch later list.
  */
 export async function deleteWatchLater(title_id: string, userEmail: string) {
+  // try {
+  //   const data =
+  //     await sql`DELETE FROM watchLater WHERE title_id = ${title_id} AND user_id = ${userEmail}`;
+  //   return data.rows;
+  // } catch (error) {
+  //   console.error("Database Error:", error);
+  //   throw new Error("Failed to add watchLater.");
+  // }
   try {
-    const data =
-      await sql`DELETE FROM watchLater WHERE title_id = ${title_id} AND user_id = ${userEmail}`;
-    return data.rows;
+    // Attempt to delete the favorite and return affected rows if supported
+    const result = await db
+      .deleteFrom("watchlater")
+      .where("title_id", "=", title_id)
+      .where("user_id", "=", userEmail)
+      .returning(["title_id"])
+      .execute();
+
+    if (result.length === 0) {
+      // No rows were affected, meaning the favorite didn't exist or wasn't deleted
+      throw new Error("Watch-later not found or already removed");
+    }
+
+    return result;
   } catch (error) {
     console.error("Database Error:", error);
-    throw new Error("Failed to add watchLater.");
+    throw new Error("Failed to delete watch-later");
   }
 }
 
@@ -251,9 +285,14 @@ export async function watchLaterExists(
   userEmail: string
 ): Promise<boolean> {
   try {
-    const data =
-      await sql`SELECT * FROM watchLater WHERE title_id = ${title_id} AND user_id = ${userEmail}`;
-    return data.rows.length > 0;
+    const data = await db
+      .selectFrom('watchlater')
+      .select('title_id')
+      .where('title_id', '=', title_id)
+      .where('user_id', '=', userEmail)
+      .execute();
+
+    return data.length > 0;
   } catch (error) {
     console.error("Database Error:", error);
     throw new Error("Failed to fetch watchLater.");
