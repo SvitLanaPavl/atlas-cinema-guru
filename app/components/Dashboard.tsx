@@ -22,7 +22,7 @@ const DashboardSidebar = () => {
     <div
       className={`relative bg-teal transition-all ease-in-out duration-300 ${
         isExpanded ? 'md:w-60' : 'md:w-20'
-      } w-full h-20 md:h-screen lg:h-screen`}
+      } w-full h-20 md:h-auto lg:h-auto`}
       // Only enable expand/collapse hover behavior for medium and large screens
       onMouseEnter={() => !isMobile && setIsExpanded(true)}
       onMouseLeave={() => !isMobile && setIsExpanded(false)}

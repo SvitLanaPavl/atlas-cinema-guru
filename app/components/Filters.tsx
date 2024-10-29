@@ -105,7 +105,7 @@ const Filters: React.FC<FiltersProps> = ({ setFilters }) => {
         {/* Genres */}
         <div className="flex flex-col">
           <h2 className="text-lg text-white ms-3 font-semibold mb-4">Genres</h2>
-          <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-3 lg:grid-cols-5 gap-4">
             {genres.map((genre) => (
               <div
                 key={genre}
