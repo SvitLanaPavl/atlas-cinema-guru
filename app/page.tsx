@@ -15,35 +15,69 @@ interface Movie {
 }
 
 export default function Page() {
-  const [movies, setMovies] = useState<Movie[]>([]); // Store all fetched movies
-  const [currentPage, setCurrentPage] = useState(1); // Track the current page
-  const itemsPerPage = 9; // Display 9 movies per page
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 9;
 
-  // Fetch all movies from the API on component mount
-  useEffect(() => {
-    const fetchMovies = async () => {
-      try {
-        const response = await fetch('/api/titles');
-        if (!response.ok) {
-          throw new Error(`API error: ${response.status}`);
-        }
-        const data = await response.json();
-        setMovies(data.titles); // Store all movies in the state
-      } catch (error) {
-        console.error('Error fetching movies: ', error);
+  // Fetch all movies on initial load
+  const fetchAllMovies = async () => {
+    try {
+      const response = await fetch(`/api/titles`); // Fetch all movies on initial load
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
       }
-    };
-    fetchMovies();
+      const data = await response.json();
+
+      if (data.titles) {
+        setMovies(data.titles);
+        setTotalPages(Math.ceil(data.titles.length / itemsPerPage));
+      } else {
+        setMovies([]);
+      }
+    } catch (error) {
+      console.error('Error fetching movies:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllMovies(); // Fetch all movies on initial load
   }, []);
 
-  // Calculate the total number of pages
-  const totalPages = Math.ceil(movies.length / itemsPerPage);
+  // Handle filters change
+  const handleFiltersChange = async (filters: { search: string; minYear: string; maxYear: string; genres: string[] }) => {
+    try {
+      // Check if any filters are active
+      const noFiltersApplied =
+        !filters.search && filters.minYear === '' && filters.maxYear === '' && filters.genres.length === 0;
 
-  // Get the movies to be displayed on the current page
-  const displayedMovies = movies.slice(
-    (currentPage - 1) * itemsPerPage, 
-    currentPage * itemsPerPage
-  );
+      // If no filters are applied, fetch all movies (just like the initial load)
+      if (noFiltersApplied) {
+        fetchAllMovies(); // Revert to fetching all movies
+        return;
+      }
+
+      // Construct query string when filters are applied
+      const queryParams = new URLSearchParams({
+        query: filters.search || '', // Handle search
+        minYear: filters.minYear || '', // Only add to query if filled
+        maxYear: filters.maxYear || '', // Only add to query if filled
+        genres: filters.genres.length > 0 ? filters.genres.join(',') : '', // Handle genres
+      });
+
+      const response = await fetch(`/api/titles?${queryParams.toString()}`); // Fetch movies based on filters
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setMovies(data.titles); // Update the movie list based on filters
+      setTotalPages(Math.ceil(data.titles.length / itemsPerPage));
+    } catch (error) {
+      console.error('Error fetching filtered movies:', error);
+    }
+  };
 
   // Handle page change
   const handlePageChange = (newPage: number) => {
@@ -52,17 +86,13 @@ export default function Page() {
 
   return (
     <>
-      <Filters setFilters={() => {}} />
-      
-      {/* Pass only the movies for the current page */}
-      <MovieList movies={displayedMovies} />
+      <Filters onFiltersChange={handleFiltersChange} />
+
+      {/* Display movies for the current page */}
+      <MovieList movies={movies.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)} />
 
       {/* Pagination controls */}
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-      />
+      <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
     </>
   );
 }

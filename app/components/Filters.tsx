@@ -1,31 +1,48 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface FiltersProps {
-  setFilters: React.Dispatch<React.SetStateAction<{
+  onFiltersChange: (filters: {
     search: string;
     minYear: string;
     maxYear: string;
     genres: string[];
-  }>>;
+  }) => void;
 }
 
-const Filters: React.FC<FiltersProps> = ({ setFilters }) => {
-  // State for search input and year inputs
+const Filters: React.FC<FiltersProps> = ({ onFiltersChange }) => {
   const [search, setSearch] = useState('');
   const [minYear, setMinYear] = useState('');
   const [maxYear, setMaxYear] = useState('');
-
-  // State for selected genres
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
+  const [allGenres, setAllGenres] = useState<string[]>([]);
 
-  // List of genres
-  const genres = [
-    'Romance', 'Horror', 'Drama', 'Action', 'Mystery', 
-    'Fantasy', 'Thriller', 'Western', 'Sci-Fi', 'Adventure'
-  ];
+  // Fetch genres on component mount
+  useEffect(() => {
+    const fetchGenres = async () => {
+      try {
+        const response = await fetch('/api/genres');
+        const data = await response.json();
+        setAllGenres(data.genres);
+      } catch (error) {
+        console.error('Error fetching genres:', error);
+      }
+    };
 
-  // Function to handle genre selection
+    fetchGenres();
+  }, []);
+
+  // Trigger filters change whenever any filter input changes
+  useEffect(() => {
+    onFiltersChange({
+      search: search.trim(), // Use trimmed search string
+      minYear: minYear.trim(), // Ensure no extra spaces
+      maxYear: maxYear.trim(), // Ensure no extra spaces
+      genres: selectedGenres,
+    });
+  }, [search, minYear, maxYear, selectedGenres]);
+
+  // Handle genre selection
   const toggleGenre = (genre: string) => {
     setSelectedGenres((prevSelected) =>
       prevSelected.includes(genre)
@@ -34,18 +51,6 @@ const Filters: React.FC<FiltersProps> = ({ setFilters }) => {
     );
   };
 
-  const updateFilters = () => {
-    setFilters({
-      search,
-      minYear,
-      maxYear,
-      genres: selectedGenres,
-    });
-  };
-
-  // Function to clear the search input
-  const clearSearch = () => setSearch('');
-
   return (
     <div className="p-10 rounded-md shadow-md w-full h-auto">
       <div className="flex flex-col md:flex-row justify-between mb-6 gap-5">
@@ -53,26 +58,14 @@ const Filters: React.FC<FiltersProps> = ({ setFilters }) => {
         <div className="flex flex-col space-y-4 relative">
           <h2 className="text-lg text-white font-semibold ms-3">Search</h2>
 
-          {/* Search Input with Clear Icon */}
           <div className="relative w-full">
             <input
               type="text"
               value={search}
-              onChange={(e) => {
-                setSearch(e.target.value),
-                updateFilters();
-              }}
+              onChange={(e) => setSearch(e.target.value)}
               placeholder="Search..."
               className="p-2 border bg-navy border-teal rounded-full w-full text-white"
             />
-            {search && (
-              <button
-                onClick={clearSearch}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white"
-              >
-                ✕
-              </button>
-            )}
           </div>
 
           <div className="flex space-x-4">
@@ -106,14 +99,12 @@ const Filters: React.FC<FiltersProps> = ({ setFilters }) => {
         <div className="flex flex-col">
           <h2 className="text-lg text-white ms-3 font-semibold mb-4">Genres</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {genres.map((genre) => (
+            {allGenres.map((genre) => (
               <div
                 key={genre}
                 onClick={() => toggleGenre(genre)}
                 className={`cursor-pointer border border-teal rounded-full px-4 py-2 text-center ${
-                  selectedGenres.includes(genre)
-                    ? 'bg-teal text-blue'
-                    : 'bg-transparent text-white'
+                  selectedGenres.includes(genre) ? 'bg-teal text-blue' : 'bg-transparent text-white'
                 }`}
               >
                 {genre}

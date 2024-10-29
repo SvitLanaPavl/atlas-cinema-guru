@@ -8,12 +8,12 @@ import "./global.css";
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body>
+      <body className="h-full">
         <SessionProvider>
           <Header />
-          <div className="flex flex-col md:flex-row bg-blue">
+          <div className="flex flex-col md:flex-row bg-blue min-h-screen">
             <DashboardSidebar />
-            <div className="flex-grow">
+            <div className="flex-grow min-h-screen">
               {children}
             </div>
           </div>

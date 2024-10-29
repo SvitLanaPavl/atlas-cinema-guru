@@ -17,7 +17,7 @@ const MovieCard = ({ movie }: { movie: Movie}) => {
     <div className="relative group border-teal border-2 rounded-lg overflow-hidden h-[45vh]">
       {/* Background image */}
       <div
-        className="h-full w-full bg-cover bg-center"
+        className="h-full w-full bg-cover bg-no-repeat bg-center"
         style={{ backgroundImage: `url(${imageUrl})` }}
       ></div>
 
@@ -36,7 +36,7 @@ const MovieCard = ({ movie }: { movie: Movie}) => {
       </div>
 
       {/* Hover overlay */}
-      <div className="absolute space-y-5 bottom-0 left-0 w-full h-0 opacity-0 group-hover:h-[40%] group-hover:opacity-100 transition-all duration-500 ease-in-out bg-navy bg-opacity-75 p-4">
+      <div className="absolute space-y-5 bottom-0 left-0 w-full h-0 opacity-0 group-hover:h-[40%] lg:group-hover:h-[47%] xl:group-hover:h-[40%] group-hover:opacity-100 transition-all duration-500 ease-in-out bg-navy bg-opacity-75 p-4">
         {/* Movie Title */}
         <h3 className="text-lg font-semibold text-white">
           {movie.title} ({movie.released})

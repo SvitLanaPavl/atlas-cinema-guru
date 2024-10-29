@@ -41,12 +41,12 @@ export async function fetchTitles(
       // .offset((page - 1) * 6);
 
     // Only apply filters if they exist
-    if (minYear > 0) {
-      queryBuilder = queryBuilder.where("titles.released", ">=", minYear);
+    if (minYear && Number(minYear) > 0) {
+      queryBuilder = queryBuilder.where("titles.released", ">=", Number(minYear));
     }
-    if (maxYear < new Date().getFullYear()) {
-      queryBuilder = queryBuilder.where("titles.released", "<=", maxYear);
-    }
+    if (maxYear && Number(maxYear) <= new Date().getFullYear()) {
+      queryBuilder = queryBuilder.where("titles.released", "<=", Number(maxYear));
+    }    
     if (query) {
       queryBuilder = queryBuilder.where("titles.title", "ilike", `%${query}%`);
     }
@@ -234,11 +234,18 @@ export async function watchLaterExists(
  * Get all genres for titles.
  */
 export async function fetchGenres(): Promise<string[]> {
-  const data = await sql<{ genre: string }>`
-        SELECT DISTINCT titles.genre
-        FROM titles;
-      `;
-  return data.rows.map((row) => row.genre);
+  try {
+    const data = await db
+      .selectFrom("titles")
+      .distinct()
+      .select("titles.genre")
+      .execute();
+
+    return data.map((row) => row.genre);
+  } catch (error) {
+    console.error("Error fetching genres from database:", error);
+    throw new Error("Failed to fetch genres.");
+  }
 }
 
 /**
