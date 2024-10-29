@@ -15,7 +15,8 @@ interface Movie {
 }
 
 export default function Page() {
-  const [movies, setMovies] = useState<Movie[]>([]);
+  const [allMovies, setAllMovies] = useState<Movie[]>([]); // Store all movies fetched initially
+  const [filteredMovies, setFilteredMovies] = useState<Movie[]>([]); // Store filtered movies
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 9;
@@ -30,10 +31,12 @@ export default function Page() {
       const data = await response.json();
 
       if (data.titles) {
-        setMovies(data.titles);
+        setAllMovies(data.titles); // Set all movies for initial load
+        setFilteredMovies(data.titles); // Initially set filtered movies to all movies
         setTotalPages(Math.ceil(data.titles.length / itemsPerPage));
       } else {
-        setMovies([]);
+        setAllMovies([]);
+        setFilteredMovies([]);
       }
     } catch (error) {
       console.error('Error fetching movies:', error);
@@ -44,39 +47,36 @@ export default function Page() {
     fetchAllMovies(); // Fetch all movies on initial load
   }, []);
 
-  // Handle filters change
-  const handleFiltersChange = async (filters: { search: string; minYear: string; maxYear: string; genres: string[] }) => {
-    try {
-      // Check if any filters are active
-      const noFiltersApplied =
-        !filters.search && filters.minYear === '' && filters.maxYear === '' && filters.genres.length === 0;
+  // Handle client-side filtering
+  const handleFiltersChange = (filters: { search: string; minYear: string; maxYear: string; genres: string[] }) => {
+    let filtered = allMovies;
 
-      // If no filters are applied, fetch all movies (just like the initial load)
-      if (noFiltersApplied) {
-        fetchAllMovies(); // Revert to fetching all movies
-        return;
-      }
-
-      // Construct query string when filters are applied
-      const queryParams = new URLSearchParams({
-        query: filters.search || '', // Handle search
-        minYear: filters.minYear || '', // Only add to query if filled
-        maxYear: filters.maxYear || '', // Only add to query if filled
-        genres: filters.genres.length > 0 ? filters.genres.join(',') : '', // Handle genres
-      });
-
-      const response = await fetch(`/api/titles?${queryParams.toString()}`); // Fetch movies based on filters
-      
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setMovies(data.titles); // Update the movie list based on filters
-      setTotalPages(Math.ceil(data.titles.length / itemsPerPage));
-    } catch (error) {
-      console.error('Error fetching filtered movies:', error);
+    // Apply search filter
+    if (filters.search) {
+      filtered = filtered.filter(movie =>
+        movie.title.toLowerCase().includes(filters.search.toLowerCase())
+      );
     }
+
+    // Apply year filters
+    if (filters.minYear) {
+      filtered = filtered.filter(movie => movie.released >= parseInt(filters.minYear));
+    }
+
+    if (filters.maxYear) {
+      filtered = filtered.filter(movie => movie.released <= parseInt(filters.maxYear));
+    }
+
+    // Apply genre filters
+    if (filters.genres.length > 0) {
+      filtered = filtered.filter(movie =>
+        filters.genres.includes(movie.genre)
+      );
+    }
+
+    setFilteredMovies(filtered); // Update filtered movies list
+    setTotalPages(Math.ceil(filtered.length / itemsPerPage));
+    setCurrentPage(1); // Reset to first page when filters change
   };
 
   // Handle page change
@@ -89,7 +89,7 @@ export default function Page() {
       <Filters onFiltersChange={handleFiltersChange} />
 
       {/* Display movies for the current page */}
-      <MovieList movies={movies.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)} />
+      <MovieList movies={filteredMovies.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)} />
 
       {/* Pagination controls */}
       <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
