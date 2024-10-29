@@ -1,7 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-
 const Pagination = ({ currentPage, totalPages, onPageChange }: { currentPage: number, totalPages: number, onPageChange: (page: number) => void }) => {
   // Check if "Previous" or "Next" buttons should be disabled
   const isPreviousDisabled = currentPage === 1;

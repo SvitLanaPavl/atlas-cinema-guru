@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { fetchGenres, fetchTitles } from "@/lib/data";
+import { fetchTitles } from "@/lib/data";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
@@ -25,11 +25,19 @@ export const GET = auth(async (req: NextRequest) => {
     ? Number(params.get("maxYear"))
     : new Date().getFullYear();
   const query = params.get("query") ?? "";
-  const genres = params.get("genres")?.split(",") ?? (await fetchGenres());
+  const genres = params.get("genres")?.split(",") ?? []; // Default to an empty array
 
-  const title = await fetchTitles(page, minYear, maxYear, query, genres, email);
+  // Fetch the movies from the database
+  try {
+    const titles = await fetchTitles(page, minYear, maxYear, query, genres, email);
 
-  return NextResponse.json({
-    title: title,
-  });
+    return NextResponse.json({
+      titles, // Return the list of titles
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Failed to fetch titles" },
+      { status: 500 }
+    );
+  }
 });

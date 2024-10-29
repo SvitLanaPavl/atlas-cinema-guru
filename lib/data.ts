@@ -32,18 +32,30 @@ export async function fetchTitles(
         .execute()
     ).map((row) => row.title_id);
 
-    //Fetch titles
-    const titles = await db
+    // Build the query
+    let queryBuilder = db
       .selectFrom("titles")
       .selectAll("titles")
-      .where("titles.released", ">=", minYear)
-      .where("titles.released", "<=", maxYear)
-      .where("titles.title", "ilike", `%${query}%`)
-      .where("titles.genre", "in", genres)
       .orderBy("titles.title", "asc")
-      .limit(6)
-      .offset((page - 1) * 6)
-      .execute();
+      // .limit(6)
+      // .offset((page - 1) * 6);
+
+    // Only apply filters if they exist
+    if (minYear > 0) {
+      queryBuilder = queryBuilder.where("titles.released", ">=", minYear);
+    }
+    if (maxYear < new Date().getFullYear()) {
+      queryBuilder = queryBuilder.where("titles.released", "<=", maxYear);
+    }
+    if (query) {
+      queryBuilder = queryBuilder.where("titles.title", "ilike", `%${query}%`);
+    }
+    if (genres.length > 0) {
+      queryBuilder = queryBuilder.where("titles.genre", "in", genres);
+    }
+
+    // Fetch the titles
+    const titles = await queryBuilder.execute();
 
     return titles.map((row) => ({
       ...row,
@@ -53,9 +65,10 @@ export async function fetchTitles(
     }));
   } catch (error) {
     console.error("Database Error:", error);
-    throw new Error("Failed to fetch topics.");
+    throw new Error("Failed to fetch titles.");
   }
 }
+
 
 /**
  * Get a users favorites list.

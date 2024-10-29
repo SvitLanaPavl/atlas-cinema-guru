@@ -6,7 +6,7 @@ interface Movie {
   title: string;
   synopsis: string;
   released: number;
-  genre: string[];
+  genre: string;
   image: string;
 }
 

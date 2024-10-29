@@ -5,21 +5,20 @@ interface Movie {
   title: string;
   synopsis: string;
   released: number;
-  genre: string[];
-  image: string;
+  genre: string;
 }
 
-interface MovieCardProps {
-  movie: Movie;
-}
 
-const MovieCard = ({ movie }: MovieCardProps) => {
+const MovieCard = ({ movie }: { movie: Movie}) => {
+  const imageUrl = `/images/${movie.id}.webp`;
+
+
   return (
     <div className="relative group border-teal border-2 rounded-lg overflow-hidden h-[45vh]">
       {/* Background image */}
       <div
         className="h-full w-full bg-cover bg-center"
-        style={{ backgroundImage: `url(${movie.image})` }}
+        style={{ backgroundImage: `url(${imageUrl})` }}
       ></div>
 
       {/* Favorite and Watch Later Icons */}
@@ -48,14 +47,12 @@ const MovieCard = ({ movie }: MovieCardProps) => {
 
         {/* Movie Genre */}
         <div className="flex flex-wrap gap-2 mt-2">
-          {movie.genre.map((genre) => (
             <span
-              key={genre}
+              key={movie.genre}
               className="bg-teal text-blue px-2 py-1 rounded-full text-xs"
             >
-              {genre}
+              {movie.genre}
             </span>
-          ))}
         </div>
       </div>
     </div>
