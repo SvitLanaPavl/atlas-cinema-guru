@@ -11,7 +11,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <SessionProvider>
           <Header />
-          <div className="flex flex-col lg:flex-row bg-blue">
+          <div className="flex flex-col md:flex-row bg-blue">
             <DashboardSidebar />
             <div className="flex-grow">
               {children}

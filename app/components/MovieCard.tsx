@@ -23,7 +23,7 @@ const MovieCard = ({ movie }: MovieCardProps) => {
       ></div>
 
       {/* Favorite and Watch Later Icons */}
-      <div className="absolute top-2 right-2 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out">
+      <div className="absolute top-3 right-3 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out">
         <img
           src="/assets/star.svg"
           alt="Favorite"

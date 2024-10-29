@@ -12,7 +12,7 @@ interface Movie {
 
 const MovieList = ({ movies }: { movies: Movie[] }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mx-5 md:mx-10">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7 mx-5 md:mx-10">
       {movies.length > 0 ? (
         movies.map((movie) => (
           <MovieCard key={movie.id} movie={movie} /> // Pass movie data to MovieCard
