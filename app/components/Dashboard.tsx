@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import ActivityFeed from './ActivityFeed';
 
 const DashboardSidebar = () => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -21,7 +22,7 @@ const DashboardSidebar = () => {
   return (
     <div
       className={`relative bg-teal transition-all ease-in-out duration-300 ${
-        isExpanded ? 'md:w-60' : 'md:w-20'
+        isExpanded ? 'md:w-64' : 'md:w-20'
       } w-full h-20 md:h-auto lg:h-auto`}
       // Only enable expand/collapse hover behavior for medium and large screens
       onMouseEnter={() => !isMobile && setIsExpanded(true)}
@@ -47,7 +48,10 @@ const DashboardSidebar = () => {
           <img src="/assets/clock-solid.svg" alt="Watch Later" className="h-6 w-6" />
           {(isExpanded || isMobile) && <span className="ml-3 text-white hover:text-blueLight transition ease-in-out duration-300 hover:scale-105">Watch Later</span>}
         </Link>
+        {/* Activity Feed */}
+        {isExpanded && <ActivityFeed />}
       </div>
+      
     </div>
   );
 };
