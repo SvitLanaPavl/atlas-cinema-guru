@@ -1,11 +1,9 @@
-"use client";
-
-import { signOut, useSession } from "next-auth/react";
+// import { signOut, useSession } from "next-auth/react";
 import { FiLogOut } from "react-icons/fi";
+import { auth, signOut } from '@/auth';
 
-const Header = () => {
-  const { data: session } = useSession(); // Get session data (user info)
-
+const Header = async () => {
+  const session = await auth();
   return (
     <header className="bg-tealBright h-[8dvh] w-full flex items-center justify-between px-6 text-blue">
       {/* Left side: Logo and Title */}
@@ -21,13 +19,16 @@ const Header = () => {
         {session?.user ? (
           <>
             <span>Welcome, {session.user.name || session.user.email}</span>
+            <form action={async () => { 'use server'; await signOut() }} >
             <button
-              onClick={() => signOut()}
+              type='submit'
               className="flex items-center space-x-2 text-blue-500 hover:text-blue-700 transition"
             >
               <FiLogOut className="h-5 w-5" /> {/* Sign-out icon */}
               <span className='hidden sm:inline'>Logout</span> {/* Logout text */}
             </button>
+            </form>
+            
           </>
         ) : (
           <span>Loading...</span>
