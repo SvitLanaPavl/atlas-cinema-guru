@@ -1,5 +1,5 @@
-import { Generated } from "kysely";
-import { createKysely } from "@vercel/postgres-kysely";
+import { Generated, Kysely, PostgresDialect } from "kysely";
+import { Pool } from "pg";
 
 export interface Database {
   titles: TitlesTable;
@@ -44,4 +44,18 @@ export interface ActivitiesTable {
   activity: "FAVORITED" | "WATCH_LATER";
 }
 
-export const db = createKysely<Database>();
+const connectionString =
+  process.env.POSTGRES_URL || process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error("Missing POSTGRES_URL or DATABASE_URL");
+}
+
+export const db = new Kysely<Database>({
+  dialect: new PostgresDialect({
+    pool: new Pool({
+      connectionString,
+      ssl: { rejectUnauthorized: false },
+    }),
+  }),
+});

@@ -10,7 +10,7 @@ const DashboardSidebar = () => {
   // Detect if the screen is mobile or not
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768); // Set to true if the screen width is smaller than 768px (md breakpoint)
+      setIsMobile(window.innerWidth < 768);
     };
 
     handleResize(); // Check the initial width

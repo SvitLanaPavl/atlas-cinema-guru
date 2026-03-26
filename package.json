@@ -16,6 +16,7 @@
     "kysely": "^0.27.4",
     "next": "15.0.0",
     "next-auth": "5.0.0-beta.25",
+    "pg": "^8.20.0",
     "postcss": "8.4.47",
     "react": "19.0.0-rc-65a56d0e-20241020",
     "react-dom": "19.0.0-rc-65a56d0e-20241020",
@@ -27,6 +28,7 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/node": "20.16.5",
+    "@types/pg": "^8.20.0",
     "@types/react": "npm:types-react@19.0.0-rc.1",
     "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
     "typescript": "5.6.3"
