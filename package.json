@@ -14,12 +14,12 @@
     "bcryptjs": "2.4.3",
     "clsx": "2.1.1",
     "kysely": "^0.27.4",
-    "next": "15.0.0",
+    "next": "^15.1.9",
     "next-auth": "5.0.0-beta.25",
     "pg": "^8.20.0",
     "postcss": "8.4.47",
-    "react": "19.0.0-rc-65a56d0e-20241020",
-    "react-dom": "19.0.0-rc-65a56d0e-20241020",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "react-icons": "^5.3.0",
     "tailwindcss": "3.4.12",
     "tailwindcss-animate": "^1.0.7",
@@ -29,12 +29,8 @@
     "@types/bcrypt": "^5.0.2",
     "@types/node": "20.16.5",
     "@types/pg": "^8.20.0",
-    "@types/react": "npm:types-react@19.0.0-rc.1",
-    "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "typescript": "5.6.3"
-  },
-  "overrides": {
-    "@types/react": "npm:types-react@19.0.0-rc.1",
-    "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1"
   }
 }
